@@ -1,0 +1,7 @@
+{
+  "name": "ProyectoDAM",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
