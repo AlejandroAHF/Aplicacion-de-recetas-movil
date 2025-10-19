@@ -1,0 +1,114 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle de Receta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div *ngIf="receta; else noData">
+    <!-- Imagen principal -->
+    <img [src]="receta.image" [alt]="receta.name" class="recipe-image">
+    
+    <!-- Información principal -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ receta.name }}</ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <!-- Chips de información rápida -->
+        <div class="info-chips">
+          <ion-chip color="primary">
+            <ion-label>⏱️ {{ receta.prepTimeMinutes }} min</ion-label>
+          </ion-chip>
+          <ion-chip color="secondary">
+            <ion-label>🍳 {{ receta.difficulty }}</ion-label>
+          </ion-chip>
+          <ion-chip color="tertiary">
+            <ion-label>🍽️ {{ receta.servings }} porciones</ion-label>
+          </ion-chip>
+          <ion-chip color="success">
+            <ion-label>⭐ {{ receta.rating }} / 5</ion-label>
+          </ion-chip>
+        </div>
+
+        <!-- Tiempo de cocción -->
+        <p *ngIf="receta.cookTimeMinutes">
+          <strong>Tiempo de cocción:</strong> {{ receta.cookTimeMinutes }} minutos
+        </p>
+
+        <!-- Calorías -->
+        <p *ngIf="receta.caloriesPerServing">
+          <strong>Calorías por porción:</strong> {{ receta.caloriesPerServing }} kcal
+        </p>
+
+        <!-- Cocina -->
+        <p *ngIf="receta.cuisine">
+          <strong>Tipo de cocina:</strong> {{ receta.cuisine }}
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Ingredientes -->
+    <ion-card *ngIf="receta.ingredients && receta.ingredients.length > 0">
+      <ion-card-header>
+        <ion-card-title>Ingredientes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let ingrediente of receta.ingredients">
+            <ion-label>✓ {{ ingrediente }}</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Instrucciones -->
+    <ion-card *ngIf="receta.instructions && receta.instructions.length > 0">
+      <ion-card-header>
+        <ion-card-title>Instrucciones</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let instruccion of receta.instructions; let i = index">
+            <ion-label class="ion-text-wrap">
+              <strong>{{ i + 1 }}.</strong> {{ instruccion }}
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tags -->
+    <ion-card *ngIf="receta.tags && receta.tags.length > 0">
+      <ion-card-header>
+        <ion-card-title>Tags</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-chip *ngFor="let tag of receta.tags" color="medium">
+          <ion-label>{{ tag }}</ion-label>
+        </ion-chip>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botón para volver -->
+    <div class="ion-padding">
+      <ion-button expand="block" (click)="volver()">
+        Volver a recetas
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Mensaje si no hay datos -->
+  <ng-template #noData>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <p>No se encontraron datos de la receta</p>
+        <ion-button (click)="volver()">Volver al inicio</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+</ion-content>

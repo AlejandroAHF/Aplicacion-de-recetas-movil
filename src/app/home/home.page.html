@@ -18,6 +18,9 @@
           <ion-card-content>
             <p>Difficulty: {{receta.difficulty}}</p>
             <p>Prep Time Minutes: {{receta.prepTimeMinutes}}</p>
+            <ion-button expand="block" (click)="verDetalle(receta.id)">
+              Ver Detalle
+            </ion-button>
           </ion-card-content>
         </ion-card>
       </ion-col>
