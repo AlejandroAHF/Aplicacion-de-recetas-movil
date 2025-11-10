@@ -13,12 +13,32 @@ import { Router } from '@angular/router';
 })
 export class RecipePage implements OnInit {
   receta: any = null;
+  apiSource: 'dummy' | 'local' = 'dummy';
+  recipeData: {
+    name: string;
+    image: string;
+    difficulty?: string;
+    prepTimeMinutes?: number;
+    cookTimeMinutes?: number;
+    servings?: number;
+    ingredients?: string[];
+    instructions?: string[];
+    description?: string;
+    rating?: number;
+    cuisine?: string;
+    mealType?: string[];
+    tags?: string[];
+  } = {
+    name: '',
+    image: ''
+  };
 
   constructor(private router: Router) {
     // Obtener los datos del state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.receta = navigation.extras.state['receta'];
+      this.apiSource = navigation.extras.state['source'] || 'dummy';
     }
   }
 
@@ -29,6 +49,38 @@ export class RecipePage implements OnInit {
       this.router.navigate(['/home']);
     } else {
       console.log('Receta recibida:', this.receta);
+      this.mapearDatosReceta();
+    }
+  }
+
+  mapearDatosReceta() {
+    if (this.apiSource === 'local') {
+      // Mapeo para la API local
+      this.recipeData = {
+        name: this.receta.name,
+        image: this.receta.image,
+        difficulty: this.receta.difficulty,
+        prepTimeMinutes: this.receta.prepTimeMinutes,
+        description: this.receta.description,
+        ingredients: this.receta.ingredients?.split('\n'),
+        instructions: this.receta.instructions?.split('\n'),
+        servings: this.receta.servings
+      };
+    } else {
+      // Mapeo para la API dummy
+      this.recipeData = {
+        name: this.receta.name,
+        image: this.receta.image,
+        difficulty: 'N/A',
+        prepTimeMinutes: this.receta.preparationMinutes,
+        cookTimeMinutes: this.receta.cookingMinutes,
+        servings: this.receta.servings,
+        ingredients: this.receta.ingredients,
+        instructions: this.receta.instructions,
+        cuisine: this.receta.cuisine,
+        tags: this.receta.tags,
+        mealType: [this.receta.mealType]
+      };
     }
   }
 

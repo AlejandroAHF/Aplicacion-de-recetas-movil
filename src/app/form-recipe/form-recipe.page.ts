@@ -1,20 +1,256 @@
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { FormsModule, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel, IonItemDivider, IonButton, IonIcon, IonSelectOption, IonCardSubtitle, IonInput, IonGrid, IonRow, IonCol, IonSelect, IonNote } from '@ionic/angular/standalone';
+import axios from 'axios';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-recipe',
   templateUrl: './form-recipe.page.html',
   styleUrls: ['./form-recipe.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonItemDivider,
+    IonButton,
+    IonIcon,
+    IonSelectOption,
+    IonSelect,
+    IonInput,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCardSubtitle,
+    IonNote
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class FormRecipePage implements OnInit {
+  recipeForm: FormGroup;
+  previewImage: string = '';
+  formSubmitted = false;
+  isEditMode = false;
+  recipeId: number | null = null;
+  imageError: string = '';
 
-  constructor() { }
+  constructor(private fb: FormBuilder, private router: Router, private cd: ChangeDetectorRef, private ngZone: NgZone) {
+    this.recipeForm = this.fb.group({
+      id: [null],
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      ingredients: this.fb.array([this.fb.control('', Validators.required)]),
+      instructions: this.fb.array([this.fb.control('', Validators.required)]),
+      prepTimeMinutes: ['', [Validators.required, Validators.min(1)]],
+      cookTimeMinutes: ['', [Validators.required, Validators.min(1)]],
+      servings: ['', [Validators.required, Validators.min(1)]],
+      difficulty: ['', Validators.required],
+      cuisine: ['', Validators.required],
+      caloriesPerServing: ['', [Validators.required, Validators.min(1)]],
+      // image puede ser una URL (string) o el nombre del archivo cuando se sube desde el dispositivo
+      image: [''],
+    });
 
-  ngOnInit() {
+    // Suscribirse a cambios en el control image: si es una URL válida se previsualiza
+    this.recipeForm.get('image')?.valueChanges.subscribe(val => {
+      if (typeof val === 'string' && val.startsWith('http')) {
+        this.previewImage = val;
+        this.selectedFile = null;
+      }
+    });
   }
 
+  // Archivo seleccionado desde el dispositivo
+  selectedFile: File | null = null;
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    // Validación de tipo y tamaño
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    this.imageError = '';
+
+    if (!validTypes.includes(file.type)) {
+      this.imageError = 'El archivo debe ser una imagen (jpg, png, gif, webp).';
+      this.selectedFile = null;
+      this.previewImage = '';
+      this.recipeForm.patchValue({ image: '' });
+      return;
+    }
+    if (file.size > maxSize) {
+      this.imageError = 'La imagen no debe superar los 2MB.';
+      this.selectedFile = null;
+      this.previewImage = '';
+      this.recipeForm.patchValue({ image: '' });
+      return;
+    }
+
+    this.selectedFile = file;
+    console.log('Archivo seleccionado:', file.name, file.type, file.size, file);
+
+    // Generar preview (FileReader) y forzar la actualización de Angular
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.ngZone.run(() => {
+        this.previewImage = reader.result as string;
+        try { this.cd.detectChanges(); } catch (e) { /* ignore */ }
+      });
+    };
+    reader.readAsDataURL(file);
+
+    // Guardar el nombre de archivo en el control (opcional)
+    this.recipeForm.patchValue({ image: file.name });
+  }
+
+  ngOnInit() {
+    // Obtener datos de la navegación
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as { receta: any, mode: 'create' | 'edit' };
+    
+    if (state && state.mode === 'edit' && state.receta) {
+      this.isEditMode = true;
+      this.recipeId = state.receta.id;
+      this.loadRecipeData(state.receta);
+    }
+  }
+
+  private loadRecipeData(receta: any) {
+    // Limpiar los FormArrays existentes
+    while (this.ingredients.length !== 0) {
+      this.ingredients.removeAt(0);
+    }
+    while (this.instructions.length !== 0) {
+      this.instructions.removeAt(0);
+    }
+
+    // Cargar ingredientes
+    receta.ingredients.forEach((ingredient: string) => {
+      this.ingredients.push(this.fb.control(ingredient, Validators.required));
+    });
+
+    // Cargar instrucciones
+    receta.instructions.forEach((instruction: string) => {
+      this.instructions.push(this.fb.control(instruction, Validators.required));
+    });
+
+    // Actualizar el resto del formulario
+    this.recipeForm.patchValue({
+      id: receta.id,
+      name: receta.name,
+      prepTimeMinutes: receta.prepTimeMinutes,
+      cookTimeMinutes: receta.cookTimeMinutes,
+      servings: receta.servings,
+      difficulty: receta.difficulty,
+      cuisine: receta.cuisine,
+      caloriesPerServing: receta.caloriesPerServing,
+      image: receta.image
+    });
+  }
+
+  // Getters para los form arrays
+  get ingredients() {
+    return this.recipeForm.get('ingredients') as FormArray;
+  }
+
+  get instructions() {
+    return this.recipeForm.get('instructions') as FormArray;
+  }
+
+  // Funciones para ingredientes
+  addIngredient() {
+    this.ingredients.push(this.fb.control('', Validators.required));
+  }
+
+  removeIngredient(index: number) {
+    this.ingredients.removeAt(index);
+  }
+
+  // Funciones para instrucciones
+  addInstruction() {
+    this.instructions.push(this.fb.control('', Validators.required));
+  }
+
+  removeInstruction(index: number) {
+    this.instructions.removeAt(index);
+  }
+
+  async onSubmit() {
+    if (this.recipeForm.valid) {
+      try {
+        const recipeData = this.recipeForm.value;
+
+        // Si hay un archivo seleccionado, enviamos multipart/form-data
+        if (this.selectedFile) {
+          if (this.imageError) {
+            console.error('No se puede enviar: ', this.imageError);
+            return;
+          }
+          console.log('Enviando archivo:', this.selectedFile);
+          const formData = new FormData();
+          // Imagen como archivo
+          formData.append('image', this.selectedFile);
+
+          // Campos simples y arrays como JSON.stringify
+          formData.append('name', recipeData.name);
+          formData.append('ingredients', JSON.stringify(recipeData.ingredients));
+          formData.append('instructions', JSON.stringify(recipeData.instructions));
+          formData.append('prepTimeMinutes', recipeData.prepTimeMinutes.toString());
+          formData.append('cookTimeMinutes', recipeData.cookTimeMinutes.toString());
+          formData.append('servings', recipeData.servings.toString());
+          formData.append('difficulty', recipeData.difficulty);
+          formData.append('cuisine', recipeData.cuisine);
+          formData.append('caloriesPerServing', recipeData.caloriesPerServing.toString());
+
+          if (this.isEditMode) {
+            // Laravel: para actualizar con archivo, usar POST + _method=PUT
+            formData.append('_method', 'PUT');
+            await axios.post(`http://127.0.0.1:8000/api/recipes/${this.recipeId}`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            console.log('Receta actualizada (con imagen)');
+          } else {
+            await axios.post('http://127.0.0.1:8000/api/recipes', formData, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            console.log('Receta creada (con imagen)');
+          }
+        } else {
+          // Envío JSON cuando no hay archivo
+          let response;
+          if (this.isEditMode) {
+            response = await axios.put(`http://127.0.0.1:8000/api/recipes/${this.recipeId}`, recipeData);
+            console.log('Receta actualizada:', response.data);
+          } else {
+            response = await axios.post('http://127.0.0.1:8000/api/recipes', recipeData);
+            console.log('Receta creada:', response.data);
+          }
+        }
+
+        // Navegar de vuelta a la página principal
+        this.router.navigate(['/home']);
+      } catch (error: any) {
+        console.error('Error al guardar la receta:', error);
+        // Mostrar detalles de validación retornados por el servidor si existen
+        if (error.response && error.response.data) {
+          console.error('Detalles de la respuesta del servidor:', error.response.data);
+        }
+        // Aquí podrías mostrar un mensaje de error al usuario (toast/modal)
+      }
+    }
+  }
 }
