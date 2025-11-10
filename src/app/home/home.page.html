@@ -1,10 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      RECETAS
-      <ion-grid>
-        <ion-row>
-          <ion-item>
+    <ion-title>RECETAS</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="agregarReceta()">
+        <ion-icon name="add-outline"></ion-icon>
+        Nueva Receta
+      </ion-button>
+    </ion-buttons>
+    <ion-grid>
+      <ion-row>
+        <ion-item>
               <ion-label position="floating">Search</ion-label>
               <ion-input
                 type="text"
@@ -23,14 +28,34 @@
             </ion-item>
         </ion-row>
       </ion-grid>
-    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-grid>
     <ion-row>
-  <ion-col size="12" size-md="6" size-lg="4" *ngFor="let receta of recetas">
+      <ion-col size="12" size-md="6" size-lg="4" *ngFor="let receta2 of recetas2">
+        <ion-card>
+          <img [src]="receta2.image" alt="{{receta2.name}}">
+          <ion-card-header>
+            <ion-card-title>{{receta2.name}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Difficulty: {{receta2.difficulty}}</p>
+            <p>Prep Time Minutes: {{receta2.prepTimeMinutes}}</p>
+            <ion-button expand="block" (click)="verDetalle(receta2.id, 'api2')">
+              Ver Detalle
+            </ion-button>
+            <ion-button expand="block" color="secondary" (click)="editarReceta(receta2)">
+              Editar
+            </ion-button>
+            <ion-button expand="block" color="danger" (click)="eliminarReceta(receta2.id)">
+              Eliminar
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="6" size-lg="4" *ngFor="let receta of recetas">
         <ion-card>
           <img [src]="receta.image" alt="{{receta.name}}">
           <ion-card-header>
@@ -39,7 +64,7 @@
           <ion-card-content>
             <p>Difficulty: {{receta.difficulty}}</p>
             <p>Prep Time Minutes: {{receta.prepTimeMinutes}}</p>
-            <ion-button expand="block" (click)="verDetalle(receta.id)">
+            <ion-button expand="block" (click)="verDetalle(receta.id, 'api1')">
               Ver Detalle
             </ion-button>
           </ion-card-content>

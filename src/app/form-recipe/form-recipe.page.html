@@ -1,13 +1,146 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>FormRecipe</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Agregar Receta</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">FormRecipe</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <div class="form-container">
+    <ion-card class="recipe-card">
+      <ion-card-header>
+        <ion-card-title color="primary">Detalles de la Receta</ion-card-title>
+        <ion-card-subtitle>Completa los campos para registrar una receta</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="recipeForm">
+          <!-- Preview de imagen -->
+          <div class="image-preview" *ngIf="previewImage">
+            <img [src]="previewImage" alt="Vista previa de la receta" 
+                 onerror="this.src='assets/placeholder-recipe.jpg'">
+          </div>
+
+          <!-- Nombre -->
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Nombre</ion-label>
+            <ion-input formControlName="name" placeholder="Ej: Burritos"></ion-input>
+          </ion-item>
+
+          <!-- Ingredientes -->
+          <ion-item-divider color="light" class="section-divider">
+            <ion-label class="section-label">Ingredientes</ion-label>
+          </ion-item-divider>
+
+          <div formArrayName="ingredients" class="array-container">
+            <ion-item *ngFor="let ing of ingredients.controls; let i = index" lines="full" class="form-item">
+              <ion-input [formControlName]="i" placeholder="Ingrediente {{ i + 1 }}"></ion-input>
+              <ion-button fill="clear" color="danger" (click)="removeIngredient(i)" *ngIf="ingredients.length > 1">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" fill="outline" color="medium" (click)="addIngredient()" class="add-button">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Agregar ingrediente
+          </ion-button>
+
+          <!-- Instrucciones -->
+          <ion-item-divider color="light" class="section-divider">
+            <ion-label class="section-label">Instrucciones</ion-label>
+          </ion-item-divider>
+
+          <div formArrayName="instructions" class="array-container">
+            <ion-item *ngFor="let step of instructions.controls; let i = index" lines="full" class="form-item">
+              <ion-input [formControlName]="i" placeholder="Paso {{ i + 1 }}"></ion-input>
+              <ion-button fill="clear" color="danger" (click)="removeInstruction(i)" *ngIf="instructions.length > 1">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" fill="outline" color="medium" (click)="addInstruction()" class="add-button">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Agregar paso
+          </ion-button>
+
+          <!-- Detalles -->
+          <ion-item-divider color="light" class="section-divider">
+            <ion-label class="section-label">Detalles</ion-label>
+          </ion-item-divider>
+
+          <ion-grid class="details-grid">
+            <ion-row>
+              <ion-col size="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Prep (min)</ion-label>
+                  <ion-input type="number" formControlName="prepTimeMinutes"></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Cocción (min)</ion-label>
+                  <ion-input type="number" formControlName="cookTimeMinutes"></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Porciones</ion-label>
+                  <ion-input type="number" formControlName="servings"></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6">
+                <ion-item lines="full" class="form-item">
+                  <ion-label position="floating">Calorías</ion-label>
+                  <ion-input type="number" formControlName="caloriesPerServing"></ion-input>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <!-- Otros -->
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Dificultad</ion-label>
+            <ion-select formControlName="difficulty" interface="popover">
+              <ion-select-option value="easy">Fácil</ion-select-option>
+              <ion-select-option value="medium">Media</ion-select-option>
+              <ion-select-option value="hard">Difícil</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Cocina</ion-label>
+            <ion-input formControlName="cuisine" placeholder="Ej: Mexicana"></ion-input>
+          </ion-item>
+
+          <ion-item lines="full" class="form-item">
+            <ion-label position="floating">Imagen</ion-label>
+            <!-- input file nativo oculto -->
+            <input type="file" accept="image/*" #fileInput hidden (change)="onFileSelected($event)">
+
+            <ion-button expand="block" (click)="fileInput.click()" color="tertiary">
+              <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+              Subir imagen
+            </ion-button>
+
+            <!-- mostrar nombre de archivo o URL si existe -->
+            <ion-note *ngIf="recipeForm.get('image')?.value && !previewImage" class="ion-padding-start">
+              {{ recipeForm.get('image')?.value }}
+            </ion-note>
+            <ion-note color="danger" *ngIf="imageError">{{ imageError }}</ion-note>
+          </ion-item>
+
+          <!-- Botones -->
+          <div class="button-container">
+            <ion-button expand="block" color="primary" class="submit-btn" (click)="onSubmit()" [disabled]="!recipeForm.valid">
+              Guardar Receta
+            </ion-button>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>
