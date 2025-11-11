@@ -7,33 +7,142 @@
         Nueva Receta
       </ion-button>
     </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Barra de búsqueda rápida -->
+  <ion-toolbar>
     <ion-grid>
       <ion-row>
-        <ion-item>
-              <ion-label position="floating">Search</ion-label>
-              <ion-input
-                type="text"
-                placeholder="Search Recipe"
-                [(ngModel)]="searchTerm"
-                name="searchTerm"
-                (keyup.enter)="buscarReceta()"
-              >
-              </ion-input>
-              <ion-button expand="block" fill="outline" (click)="buscarReceta()">
-                Search
-              </ion-button>
-              <ion-button expand="block" fill="clear" (click)="limpiarBusqueda()">
-                Clear
-              </ion-button>
-            </ion-item>
-        </ion-row>
-      </ion-grid>
+        <ion-col size="12" size-md="8">
+          <ion-item>
+            <ion-label position="floating">Buscar receta por nombre</ion-label>
+            <ion-input
+              type="text"
+              placeholder="Ej: Pizza, Pasta..."
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="buscarReceta()"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col size="6" size-md="2">
+          <ion-button expand="block" (click)="buscarReceta()">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Buscar
+          </ion-button>
+        </ion-col>
+        <ion-col size="6" size-md="2">
+          <ion-button expand="block" fill="outline" (click)="toggleFilters()">
+            <ion-icon name="filter-outline" slot="start"></ion-icon>
+            Filtros
+            <ion-chip *ngIf="filtrosActivos > 0" color="primary">
+              {{filtrosActivos}}
+            </ion-chip>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+
+  <!-- Panel de filtros avanzados -->
+  <ion-toolbar *ngIf="showFilters">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="3">
+          <ion-item>
+            <ion-label>Dificultad</ion-label>
+            <ion-select 
+              [(ngModel)]="filterDifficulty" 
+              placeholder="Todas"
+              (ionChange)="aplicarFiltros()"
+            >
+              <ion-select-option value="">Todas</ion-select-option>
+              <ion-select-option *ngFor="let diff of difficulties" [value]="diff">
+                {{diff}}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="12" size-md="3">
+          <ion-item>
+            <ion-label>Cocina</ion-label>
+            <ion-select 
+              [(ngModel)]="filterCuisine" 
+              placeholder="Todas"
+              (ionChange)="aplicarFiltros()"
+            >
+              <ion-select-option value="">Todas</ion-select-option>
+              <ion-select-option *ngFor="let cuisine of cuisines" [value]="cuisine">
+                {{cuisine}}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="12" size-md="3">
+          <ion-item>
+            <ion-label position="floating">Tiempo máx (min)</ion-label>
+            <ion-input
+              type="number"
+              placeholder="Ej: 30"
+              [(ngModel)]="filterMaxTime"
+              (ionChange)="aplicarFiltros()"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="12" size-md="3">
+          <ion-button expand="block" color="medium" (click)="limpiarFiltros()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Limpiar Filtros
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <!-- Chips de filtros activos -->
+      <ion-row *ngIf="filtrosActivos > 0">
+        <ion-col size="12">
+          <div class="active-filters">
+            <ion-chip *ngIf="searchTerm" color="primary" (click)="searchTerm = ''; aplicarFiltros()">
+              <ion-label>Búsqueda: {{searchTerm}}</ion-label>
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-chip>
+            <ion-chip *ngIf="filterDifficulty" color="primary" (click)="filterDifficulty = ''; aplicarFiltros()">
+              <ion-label>Dificultad: {{filterDifficulty}}</ion-label>
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-chip>
+            <ion-chip *ngIf="filterCuisine" color="primary" (click)="filterCuisine = ''; aplicarFiltros()">
+              <ion-label>Cocina: {{filterCuisine}}</ion-label>
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-chip>
+            <ion-chip *ngIf="filterMaxTime" color="primary" (click)="filterMaxTime = null; aplicarFiltros()">
+              <ion-label>Tiempo: ≤{{filterMaxTime}} min</ion-label>
+              <ion-icon name="close-circle"></ion-icon>
+            </ion-chip>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <!-- Mensaje cuando no hay resultados -->
+  <ion-card *ngIf="recetas.length === 0 && recetas2.length === 0">
+    <ion-card-header>
+      <ion-card-title>No se encontraron recetas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Intenta ajustar los filtros o realizar una nueva búsqueda.</p>
+      <ion-button expand="block" (click)="limpiarFiltros()">
+        Limpiar Filtros
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
   <ion-grid>
     <ion-row>
+      <!-- Recetas de API 2 (Laravel) -->
       <ion-col size="12" size-md="6" size-lg="4" *ngFor="let receta2 of recetas2">
         <ion-card>
           <img [src]="receta2.image" alt="{{receta2.name}}">
@@ -41,8 +150,20 @@
             <ion-card-title>{{receta2.name}}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <p>Difficulty: {{receta2.difficulty}}</p>
-            <p>Prep Time Minutes: {{receta2.prepTimeMinutes}}</p>
+            <div class="recipe-info">
+              <ion-chip color="primary">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                <ion-label>{{receta2.difficulty}}</ion-label>
+              </ion-chip>
+              <ion-chip color="secondary">
+                <ion-icon name="time-outline"></ion-icon>
+                <ion-label>{{receta2.prepTimeMinutes}} min</ion-label>
+              </ion-chip>
+              <ion-chip *ngIf="receta2.cuisine" color="tertiary">
+                <ion-icon name="globe-outline"></ion-icon>
+                <ion-label>{{receta2.cuisine}}</ion-label>
+              </ion-chip>
+            </div>
             <ion-button expand="block" (click)="verDetalle(receta2.id, 'api2')">
               Ver Detalle
             </ion-button>
@@ -55,6 +176,8 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
+
+      <!-- Recetas de API 1 (DummyJSON) -->
       <ion-col size="12" size-md="6" size-lg="4" *ngFor="let receta of recetas">
         <ion-card>
           <img [src]="receta.image" alt="{{receta.name}}">
@@ -62,8 +185,20 @@
             <ion-card-title>{{receta.name}}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <p>Difficulty: {{receta.difficulty}}</p>
-            <p>Prep Time Minutes: {{receta.prepTimeMinutes}}</p>
+            <div class="recipe-info">
+              <ion-chip color="primary">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                <ion-label>{{receta.difficulty}}</ion-label>
+              </ion-chip>
+              <ion-chip color="secondary">
+                <ion-icon name="time-outline"></ion-icon>
+                <ion-label>{{receta.prepTimeMinutes}} min</ion-label>
+              </ion-chip>
+              <ion-chip *ngIf="receta.cuisine" color="tertiary">
+                <ion-icon name="globe-outline"></ion-icon>
+                <ion-label>{{receta.cuisine}}</ion-label>
+              </ion-chip>
+            </div>
             <ion-button expand="block" (click)="verDetalle(receta.id, 'api1')">
               Ver Detalle
             </ion-button>
