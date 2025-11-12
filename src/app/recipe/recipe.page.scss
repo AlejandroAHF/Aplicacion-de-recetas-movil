@@ -1,31 +1,227 @@
+/* ======================================================= */
+/* FONDO GENERAL */
+/* ======================================================= */
+
+ion-content {
+  --background: linear-gradient(180deg, #f8fbff, #ffffff);
+  padding: 18px;
+}
+
+/* ======================================================= */
+/* ENCABEZADO */
+/* ======================================================= */
+
+ion-toolbar {
+  --background: linear-gradient(90deg, #6fb1fc, #4364f7);
+  --color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(67, 100, 247, 0.25);
+  border-bottom: 2px solid #90caf9;
+}
+
+/* ======================================================= */
+/* TARJETA PRINCIPAL */
+/* ======================================================= */
+
+ion-card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 24px 12px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+ion-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 24px rgba(100, 181, 246, 0.35);
+}
+
+/* Imagen superior */
+ion-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-bottom: 4px solid #6fb1fc;
+  transition: filter 0.3s ease;
+}
+
+ion-card img:hover {
+  filter: brightness(1.05);
+}
+
+/* Encabezado de tarjeta */
+ion-card-header {
+  text-align: center;
+  background: linear-gradient(90deg, #bbdefb, #e3f2fd);
+  padding: 16px 0;
+  border-bottom: 1px solid #90caf9;
+}
+
+ion-card-title {
+  font-size: 1.7em;
+  font-weight: 700;
+  color: #1a237e;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  text-transform: capitalize;
+}
+
+/* ======================================================= */
+/* CHIPS DE INFORMACIÓN */
+/* ======================================================= */
+
 .info-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
 }
 
-.section {
-  margin-top: 24px;
-  
-  h3 {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 12px;
-    color: var(--ion-color-primary);
-  }
+ion-chip {
+  --background: #e8f0fe;
+  --color: #1a237e;
+  font-weight: 600;
+  border-radius: 16px;
+  box-shadow: 0 2px 5px rgba(25, 118, 210, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+ion-chip:hover {
+  transform: scale(1.06);
+  box-shadow: 0 3px 8px rgba(25, 118, 210, 0.4);
+}
+
+/* ======================================================= */
+/* SECCIONES */
+/* ======================================================= */
+
+.section {
+  margin-top: 28px;
+  background: #ffffff;
+  border-left: 5px solid #64b5f6;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease;
+}
+
+.section:hover {
+  background: #f7fbff;
+}
+
+.section h3 {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #0d47a1;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #bbdefb;
+  padding-bottom: 4px;
+}
+
+.section p,
+.section ion-label {
+  color: #212121;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+/* ======================================================= */
+/* LISTAS DE INGREDIENTES / INSTRUCCIONES */
+/* ======================================================= */
+
+ion-list {
+  background: transparent;
+  border-radius: 8px;
+}
+
+ion-item {
+  --background: #f8fbff;
+  --color: #000000;
+  --padding-start: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 6px rgba(100, 181, 246, 0.2);
+  transition: transform 0.2s ease;
+}
+
+ion-item:hover {
+  transform: scale(1.02);
+}
+
+ion-item ion-label {
+  color: #000000;
+}
+
+/* ======================================================= */
+/* TAGS */
+/* ======================================================= */
 
 .tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 10px;
 }
+
+.tags-container ion-chip {
+  --background: #c5e1fa;
+  --color: #0d47a1;
+  border-radius: 10px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(100, 181, 246, 0.3);
+}
+
+/* ======================================================= */
+/* BOTÓN VOLVER */
+/* ======================================================= */
 
 .volver-btn {
-  margin-top: 24px;
+  --background: linear-gradient(90deg, #64b5f6, #42a5f5);
+  --color: #ffffff;
+  font-weight: 700;
+  margin-top: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(66, 165, 245, 0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-ion-item {
-  --padding-start: 0;
+.volver-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(66, 165, 245, 0.55);
+}
+
+/* ======================================================= */
+/* ANIMACIÓN SUAVE AL CARGAR */
+/* ======================================================= */
+
+ion-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s ease forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================= */
+/* RESPONSIVE */
+/* ======================================================= */
+
+@media (max-width: 768px) {
+  ion-card img {
+    height: 180px;
+  }
+
+  ion-card-title {
+    font-size: 1.4em;
+  }
+
+  .section {
+    padding: 14px 16px;
+  }
 }

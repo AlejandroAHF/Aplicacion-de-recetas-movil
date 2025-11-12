@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar class="cabeza">
     <ion-title>Agregar Receta</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -64,7 +64,6 @@
             Agregar paso
           </ion-button>
 
-          <!-- Detalles -->
           <ion-item-divider color="light" class="section-divider">
             <ion-label class="section-label">Detalles</ion-label>
           </ion-item-divider>
@@ -124,7 +123,7 @@
             <ion-button expand="block" (click)="fileInput.click()" color="tertiary">
               <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
               Subir imagen
-            </ion-button>
+            </ion-button><br><br>
 
             <!-- mostrar nombre de archivo o URL si existe -->
             <ion-note *ngIf="recipeForm.get('image')?.value && !previewImage" class="ion-padding-start">
