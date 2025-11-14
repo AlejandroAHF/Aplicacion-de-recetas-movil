@@ -200,15 +200,15 @@ export class FormRecipePage implements OnInit {
             console.error('No se puede enviar: ', this.imageError);
             return;
           }
+          
           console.log('Enviando archivo:', this.selectedFile);
           const formData = new FormData();
+          
           // Imagen como archivo
           formData.append('image', this.selectedFile);
 
-          // Campos simples y arrays como JSON.stringify
+          // Campos simples
           formData.append('name', recipeData.name);
-          formData.append('ingredients', JSON.stringify(recipeData.ingredients));
-          formData.append('instructions', JSON.stringify(recipeData.instructions));
           formData.append('prepTimeMinutes', recipeData.prepTimeMinutes.toString());
           formData.append('cookTimeMinutes', recipeData.cookTimeMinutes.toString());
           formData.append('servings', recipeData.servings.toString());
@@ -216,13 +216,18 @@ export class FormRecipePage implements OnInit {
           formData.append('cuisine', recipeData.cuisine);
           formData.append('caloriesPerServing', recipeData.caloriesPerServing.toString());
 
-          if (this.isEditMode) {
+          // Arrays como JSON strings
+          formData.append('ingredients', JSON.stringify(recipeData.ingredients));
+          formData.append('instructions', JSON.stringify(recipeData.instructions));
+
+          if (this.isEditMode && this.recipeId) {
             // Laravel: para actualizar con archivo, usar POST + _method=PUT
             formData.append('_method', 'PUT');
+            
             await axios.post(`http://127.0.0.1:8000/api/recipes/${this.recipeId}`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' }
             });
-            console.log('Receta actualizada (con imagen)');
+            console.log('Receta actualizada (con imagen nueva)');
           } else {
             await axios.post('http://127.0.0.1:8000/api/recipes', formData, {
               headers: { 'Content-Type': 'multipart/form-data' }
@@ -230,27 +235,64 @@ export class FormRecipePage implements OnInit {
             console.log('Receta creada (con imagen)');
           }
         } else {
-          // Envío JSON cuando no hay archivo
-          let response;
-          if (this.isEditMode) {
-            response = await axios.put(`http://127.0.0.1:8000/api/recipes/${this.recipeId}`, recipeData);
-            console.log('Receta actualizada:', response.data);
+          // Envío JSON cuando NO hay archivo nuevo
+          
+          // CLAVE: Preparar datos con arrays como JSON strings
+          const jsonData = {
+            name: recipeData.name,
+            ingredients: JSON.stringify(recipeData.ingredients),  // Convertir a string
+            instructions: JSON.stringify(recipeData.instructions), // Convertir a string
+            prepTimeMinutes: recipeData.prepTimeMinutes,
+            cookTimeMinutes: recipeData.cookTimeMinutes,
+            servings: recipeData.servings,
+            difficulty: recipeData.difficulty,
+            cuisine: recipeData.cuisine,
+            caloriesPerServing: recipeData.caloriesPerServing,
+            image: recipeData.image || '' // Mantener URL existente o vacío
+          };
+
+          console.log('Enviando JSON (sin archivo):', jsonData);
+
+          if (this.isEditMode && this.recipeId) {
+            const response = await axios.put(`http://127.0.0.1:8000/api/recipes/${this.recipeId}`, jsonData);
+            console.log('Receta actualizada (sin cambiar imagen):', response.data);
           } else {
-            response = await axios.post('http://127.0.0.1:8000/api/recipes', recipeData);
-            console.log('Receta creada:', response.data);
+            const response = await axios.post('http://127.0.0.1:8000/api/recipes', jsonData);
+            console.log('Receta creada (sin imagen):', response.data);
           }
         }
 
         // Navegar de vuelta a la página principal
         this.router.navigate(['/home']);
+        
       } catch (error: any) {
         console.error('Error al guardar la receta:', error);
-        // Mostrar detalles de validación retornados por el servidor si existen
-        if (error.response && error.response.data) {
-          console.error('Detalles de la respuesta del servidor:', error.response.data);
+        
+        // Mostrar detalles completos del error
+        if (error.response) {
+          console.error('Status:', error.response.status);
+          console.error('Data:', error.response.data);
+          console.error('Errors:', error.response.data?.errors);
         }
-        // Aquí podrías mostrar un mensaje de error al usuario (toast/modal)
+        
+        // Mostrar mensaje al usuario
+        const errorMsg = error.response?.data?.message || error.message || 'Error desconocido';
+        alert(`Error al guardar la receta: ${errorMsg}`);
       }
+    } else {
+      // Formulario inválido: mostrar errores
+      console.error('Formulario inválido');
+      
+      // Marcar todos los campos como tocados para mostrar errores
+      Object.keys(this.recipeForm.controls).forEach(key => {
+        this.recipeForm.get(key)?.markAsTouched();
+      });
+      
+      // Marcar arrays también
+      this.ingredients.controls.forEach(control => control.markAsTouched());
+      this.instructions.controls.forEach(control => control.markAsTouched());
+      
+      alert('Por favor completa todos los campos requeridos');
     }
   }
 }

@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonCardHeader, IonCardTitle, IonCardContent, IonCol, IonGrid, IonRow, IonCard, IonButton, IonInput, IonLabel, IonItem, IonButtons, IonIcon, IonSelect, IonSelectOption, IonChip } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonCardHeader, IonCardTitle, IonCardContent, IonCol, IonGrid, IonRow, IonCard, IonButton, IonInput, IonLabel, IonItem, IonButtons, IonIcon, IonSelect, IonSelectOption, IonChip, IonBadge, IonText } from '@ionic/angular/standalone';
 import axios from 'axios';
 import { Router } from '@angular/router';
 
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [
+  imports: [IonText, IonBadge, 
     FormsModule, 
     CommonModule,
     IonLabel, 
@@ -35,6 +35,9 @@ import { Router } from '@angular/router';
   ],
 })
 export class HomePage {
+  @ViewChild(IonContent, { static: false }) content!: IonContent;
+  lastScrollTop = 0;
+  headerVisible = true;
   recetas: any[] = [];
   recetas2: any[] = [];
   recetasOriginal: any[] = [];
@@ -237,5 +240,18 @@ export class HomePage {
         mode: 'create'
       }
     });
+  }
+
+  onScroll(event: any) {
+    const scrollTop = event.detail.scrollTop;
+
+    // Oculta el header al bajar, muéstralo al subir
+    if (scrollTop > this.lastScrollTop && scrollTop > 100) {
+      this.headerVisible = false;
+    } else if (scrollTop < this.lastScrollTop) {
+      this.headerVisible = true;
+    }
+
+    this.lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   }
 }
