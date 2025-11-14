@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar class="cabeza">
+  <ion-toolbar>
     <ion-title>Agregar Receta</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -23,12 +23,12 @@
           <!-- Nombre -->
           <ion-item lines="full" class="form-item">
             <ion-label position="floating">Nombre</ion-label>
-            <ion-input formControlName="name" placeholder="Ej: Burritos"></ion-input>
+            <ion-input formControlName="name"></ion-input>
           </ion-item>
 
           <!-- Ingredientes -->
-          <ion-item-divider color="light" class="section-divider">
-            <ion-label class="section-label">Ingredientes</ion-label>
+          <ion-item-divider class="section-divider">
+            <ion-label color="ligth" class="section-label">Ingredientes</ion-label>
           </ion-item-divider>
 
           <div formArrayName="ingredients" class="array-container">
@@ -41,13 +41,12 @@
           </div>
 
           <ion-button expand="block" fill="outline" color="medium" (click)="addIngredient()" class="add-button">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
             Agregar ingrediente
           </ion-button>
 
           <!-- Instrucciones -->
-          <ion-item-divider color="light" class="section-divider">
-            <ion-label class="section-label">Instrucciones</ion-label>
+          <ion-item-divider class="section-divider">
+            <ion-label color="ligth" class="section-label">Instrucciones</ion-label>
           </ion-item-divider>
 
           <div formArrayName="instructions" class="array-container">
@@ -60,12 +59,12 @@
           </div>
 
           <ion-button expand="block" fill="outline" color="medium" (click)="addInstruction()" class="add-button">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
             Agregar paso
           </ion-button>
 
-          <ion-item-divider color="light" class="section-divider">
-            <ion-label class="section-label">Detalles</ion-label>
+          <!-- Detalles -->
+          <ion-item-divider class="section-divider">
+            <ion-label color="ligth" class="section-label">Detalles</ion-label>
           </ion-item-divider>
 
           <ion-grid class="details-grid">
@@ -112,7 +111,7 @@
 
           <ion-item lines="full" class="form-item">
             <ion-label position="floating">Cocina</ion-label>
-            <ion-input formControlName="cuisine" placeholder="Ej: Mexicana"></ion-input>
+            <ion-input formControlName="cuisine" placeholder="Ej: Desayuno"></ion-input>
           </ion-item>
 
           <ion-item lines="full" class="form-item">
@@ -120,7 +119,7 @@
             <!-- input file nativo oculto -->
             <input type="file" accept="image/*" #fileInput hidden (change)="onFileSelected($event)">
 
-            <ion-button expand="block" (click)="fileInput.click()" color="tertiary">
+            <ion-button expand="block" (click)="fileInput.click()">
               <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
               Subir imagen
             </ion-button><br><br>
@@ -134,7 +133,7 @@
 
           <!-- Botones -->
           <div class="button-container">
-            <ion-button expand="block" color="primary" class="submit-btn" (click)="onSubmit()" [disabled]="!recipeForm.valid">
+            <ion-button fill="block" shape="round" color="dark" (click)="onSubmit()" [disabled]="!recipeForm.valid">
               Guardar Receta
             </ion-button>
           </div>
