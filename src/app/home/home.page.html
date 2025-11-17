@@ -30,7 +30,7 @@
         <ion-col size="6" size-md="2">
           <ion-button expand="block" fill="outline" (click)="toggleFilters()">
             Filtros
-            <ion-chip *ngIf="filtrosActivos > 0" color="primary">
+            <ion-chip *ngIf="filtrosActivos > 0" color="primary" class="ms-1">
               {{filtrosActivos}}
             </ion-chip>
           </ion-button>
@@ -39,13 +39,12 @@
     </ion-grid>
   </ion-toolbar>
 
-  <!-- Panel de filtros avanzados -->
-  <ion-toolbar *ngIf="showFilters">
-    <ion-grid>
-      <ion-row>
+  <ion-toolbar *ngIf="showFilters" class="filtros-avanzados bg-white py-3 border-top">
+    <ion-grid class="container">
+      <ion-row class="g-3">
         <ion-col size="12" size-md="3">
-          <ion-item>
-            <ion-label>Dificultad</ion-label>
+          <ion-item class="rounded-3 border shadow-sm">
+            <ion-label class="fw-semibold">Dificultad</ion-label>
             <ion-select 
               [(ngModel)]="filterDifficulty" 
               placeholder="Todas"
@@ -60,8 +59,8 @@
         </ion-col>
 
         <ion-col size="12" size-md="3">
-          <ion-item>
-            <ion-label>Cocina</ion-label>
+          <ion-item class="rounded-3 border shadow-sm">
+            <ion-label class="fw-semibold">Cocina</ion-label>
             <ion-select 
               [(ngModel)]="filterCuisine" 
               placeholder="Todas"
@@ -76,8 +75,8 @@
         </ion-col>
 
         <ion-col size="12" size-md="3">
-          <ion-item>
-            <ion-label position="floating">Tiempo máx (min)</ion-label>
+          <ion-item class="rounded-3 border shadow-sm">
+            <ion-label position="floating" class="fw-semibold">Tiempo máx (min)</ion-label>
             <ion-input
               type="number"
               placeholder="Ej: 30"
@@ -94,10 +93,9 @@
         </ion-col>
       </ion-row>
 
-      <!-- Chips de filtros activos -->
-      <ion-row *ngIf="filtrosActivos > 0">
-        <ion-col size="12">
-          <div class="active-filters">
+      <ion-row *ngIf="filtrosActivos > 0" class="mt-2">
+        <ion-col size="12" class="text-center">
+          <div class="active-filters d-inline-flex flex-wrap justify-content-center gap-2">
             <ion-chip *ngIf="searchTerm" color="primary" (click)="searchTerm = ''; aplicarFiltros()">
               <ion-label>Búsqueda: {{searchTerm}}</ion-label>
               <ion-icon name="close-circle"></ion-icon>

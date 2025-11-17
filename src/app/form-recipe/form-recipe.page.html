@@ -122,7 +122,7 @@
             <ion-button expand="block" (click)="fileInput.click()">
               <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
               Subir imagen
-            </ion-button>
+            </ion-button><br><br>
 
             <!-- mostrar nombre de archivo o URL si existe -->
             <ion-note *ngIf="recipeForm.get('image')?.value && !previewImage" class="ion-padding-start">
